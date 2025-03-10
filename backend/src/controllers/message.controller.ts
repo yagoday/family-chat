@@ -15,7 +15,7 @@ export class MessageController {
         .select([
           'message.id',
           'message.content',
-          'message.imageUrl',
+          'message.image_url',
           'message.createdAt',
           'sender.id',
           'sender.username',
@@ -34,7 +34,7 @@ export class MessageController {
       const formattedMessages = messages.map(message => ({
         id: message.id,
         content: message.content,
-        imageUrl: message.imageUrl,
+        imageUrl: message.image_url,
         sender: {
           id: message.sender.id,
           username: message.sender.username,
@@ -68,7 +68,7 @@ export class MessageController {
       const messageRepository = AppDataSource.getRepository(Message);
       const message = new Message();
       message.content = content || '';
-      message.imageUrl = imageUrl;
+      message.image_url = imageUrl;
       message.sender = user;
       message.senderId = user.id;
 
@@ -81,7 +81,7 @@ export class MessageController {
         select: {
           id: true,
           content: true,
-          imageUrl: true,
+          image_url: true,
           createdAt: true,
           sender: {
             id: true,
