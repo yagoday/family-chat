@@ -23,7 +23,7 @@ const allowedOrigins = [
   'http://localhost:3000'
 ];
 
-// CORS configuration
+// CORS configuration  changes
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
