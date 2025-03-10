@@ -19,6 +19,6 @@ export class Message {
   @Column({ name: 'user_id' })
   senderId: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 } 
