@@ -55,6 +55,11 @@ const io = new Server(httpServer, {
 });
 
 // Routes
+app.get('/health', (req, res) => {
+  console.log('Health check requested');
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/messages', messageRoutes);
 
