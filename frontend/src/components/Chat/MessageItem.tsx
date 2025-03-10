@@ -34,10 +34,6 @@ const MessageItem: React.FC<MessageItemProps> = ({
     };
   }, []);
 
-  const handleMouseLeave = () => {
-    setIsAvatarEnlarged(false);
-  };
-
   const handleAvatarClick = () => {
     setIsAvatarEnlarged(!isAvatarEnlarged);
   };

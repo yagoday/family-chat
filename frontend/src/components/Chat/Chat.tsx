@@ -18,14 +18,6 @@ interface Message {
   imageUrl?: string;
 }
 
-interface User {
-  id: string;
-  username: string;
-  nickname: string;
-  avatar: string;
-  isAdmin: boolean;
-}
-
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:4000';
 const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000/api';
 
@@ -33,7 +25,6 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
 
   // Parse user data and provide default values
   const userStr = localStorage.getItem('user');
@@ -95,17 +86,6 @@ const Chat: React.FC = () => {
 
     newSocket.on('error', (error: { message: string }) => {
       console.error('Socket error:', error.message);
-    });
-
-    newSocket.on('user_typing', ({ username }: { username: string }) => {
-      setTypingUsers((prev) => new Set(prev).add(username));
-      setTimeout(() => {
-        setTypingUsers((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(username);
-          return newSet;
-        });
-      }, 3000);
     });
 
     setSocket(newSocket);

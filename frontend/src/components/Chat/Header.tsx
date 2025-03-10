@@ -3,7 +3,6 @@ import { AppBar, Toolbar, Typography, Button, Box, Avatar } from '@mui/material'
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../services/api';
 import LogoutIcon from '@mui/icons-material/Logout';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 interface HeaderProps {
   displayName: string;
@@ -12,11 +11,10 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ displayName, isOnline, avatar }) => {
-  const navigate = useNavigate();
-
   const handleLogout = async () => {
     try {
       await auth.logout();
+      window.location.href = '/login';
     } catch (error) {
       console.error('התנתקות נכשלה:', error);
     }
