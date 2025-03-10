@@ -33,10 +33,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start:prod": "serve -s build -l ${PORT:-3000}",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "serve": "serve -s build -l $PORT"
   },
   "eslintConfig": {
     "extends": [
@@ -58,5 +58,8 @@
   },
   "devDependencies": {
     "@types/stylis": "^4.2.7"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
