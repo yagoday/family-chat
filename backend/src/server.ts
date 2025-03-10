@@ -16,34 +16,13 @@ config(); // Load environment variables
 const app = express();
 const httpServer = createServer(app);
 
-// Define allowed origins
-const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:3000',
-  'https://yagodas.up.railway.app',
-  'https://frontend-production-723b.up.railway.app'
-];
-
-console.log('Starting server with allowed origins:', allowedOrigins);
-
-// Simple CORS middleware
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  console.log('Request from origin:', origin);
-  
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-  }
-
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-    return;
-  }
-
-  next();
-});
+// Disable CORS - Allow all origins
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: '*',
+  credentials: true
+}));
 
 // Parse JSON bodies
 app.use(express.json());
@@ -61,7 +40,7 @@ app.use((req, res, next) => {
 
 const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: '*',
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -168,7 +147,6 @@ AppDataSource.initialize()
     const PORT = process.env.PORT || 4000;
     httpServer.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
-      console.log('Allowed origins:', allowedOrigins);
     });
   })
   .catch((error) => {
