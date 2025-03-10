@@ -25,30 +25,27 @@ const allowedOrigins = [
 
 console.log('Starting server with allowed origins:', allowedOrigins);
 
-// CORS options with more detailed configuration
-const corsOptions = {
-  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    console.log('Incoming request from origin:', origin);
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log('Blocked by CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Access-Control-Allow-Origin'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-};
+// Simple CORS middleware
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  console.log('Request from origin:', origin);
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
 
-// Enable pre-flight requests for all routes
-app.options('*', cors(corsOptions));
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+    return;
+  }
 
-// Middleware
-app.use(cors(corsOptions));
+  next();
+});
+
+// Parse JSON bodies
 app.use(express.json());
 
 // Debug middleware to log requests
@@ -59,16 +56,6 @@ app.use((req, res, next) => {
     origin: req.headers.origin,
     headers: req.headers
   });
-
-  // Add CORS headers manually for extra safety
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  }
-
   next();
 });
 
@@ -76,8 +63,7 @@ const io = new Server(httpServer, {
   cors: {
     origin: allowedOrigins,
     methods: ['GET', 'POST'],
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    credentials: true
   }
 });
 
