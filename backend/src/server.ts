@@ -19,28 +19,33 @@ const httpServer = createServer(app);
 // Define allowed origins
 const allowedOrigins = [
   process.env.CLIENT_URL || 'http://localhost:3000',
-  'https://yagodas.up.railway.app',  // New domain
-  'https://frontend-production-723b.up.railway.app'  // Keep old domain for safety
+  'https://yagodas.up.railway.app',
+  'https://frontend-production-723b.up.railway.app'
 ];
+
+console.log('Starting server with allowed origins:', allowedOrigins);
 
 // CORS options with more detailed configuration
 const corsOptions = {
   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    console.log('Incoming request from origin:', origin);
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log('Blocked by CORS:', origin); // Debug log
+      console.log('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Access-Control-Allow-Origin'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 };
 
-const io = new Server(httpServer, {
-  cors: corsOptions
-});
+// Enable pre-flight requests for all routes
+app.options('*', cors(corsOptions));
 
 // Middleware
 app.use(cors(corsOptions));
@@ -54,7 +59,26 @@ app.use((req, res, next) => {
     origin: req.headers.origin,
     headers: req.headers
   });
+
+  // Add CORS headers manually for extra safety
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  }
+
   next();
+});
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  }
 });
 
 // Routes
