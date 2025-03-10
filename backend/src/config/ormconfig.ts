@@ -23,7 +23,7 @@ export const AppDataSource = new DataSource({
     rejectUnauthorized: false
   },
   synchronize: false,
-  logging: true,
+  logging: false, // Disable SQL query logging
   entities: [User, Message],
   migrations: [
     SeedUsers1709999999999, 

@@ -4,6 +4,7 @@ import { io, Socket } from 'socket.io-client';
 import Header from './Header';
 import MessageList from './MessageList';
 import InputArea from './InputArea';
+import BackgroundSlider from '../BackgroundSlider';
 
 interface Message {
   id: string;
@@ -28,8 +29,6 @@ const Chat: React.FC = () => {
 
   // Parse user data and provide default values
   const userStr = localStorage.getItem('user');
-  console.log('User data from localStorage:', userStr); // Debug log
-  
   const user = userStr ? JSON.parse(userStr) : {
     id: '',
     username: '',
@@ -37,8 +36,6 @@ const Chat: React.FC = () => {
     avatar: '/images/default-avatar.jpg',
     isAdmin: false
   };
-  
-  console.log('Parsed user data:', user); // Debug log
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -72,12 +69,10 @@ const Chat: React.FC = () => {
 
     newSocket.on('connect', () => {
       setIsConnected(true);
-      console.log('Connected to socket server');
     });
 
     newSocket.on('disconnect', () => {
       setIsConnected(false);
-      console.log('Disconnected from socket server');
     });
 
     newSocket.on('new_message', (message: Message) => {
@@ -113,10 +108,18 @@ const Chat: React.FC = () => {
         height: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: 'background.default'
+        position: 'relative',
+        overflow: 'hidden'
       }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <BackgroundSlider />
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        height: '100%',
+        position: 'relative',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)'
+      }}>
         <Header 
           displayName={user?.nickname || user?.username || ''} 
           isOnline={isConnected}

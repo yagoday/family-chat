@@ -7,34 +7,18 @@ import { config } from 'dotenv';
 import { AppDataSource } from './config/ormconfig';
 import authRoutes from './routes/auth.routes';
 import messageRoutes from './routes/message.routes';
+import backgroundRoutes from './routes/background.routes';
 import { authenticateSocket } from './middleware/auth.middleware';
 import { User } from './entities/User';
 import { Message } from './entities/Message';
 
-config(); // Load environment variables
+config();
 
 const app = express();
 const httpServer = createServer(app);
 
-// Debug middleware to log requests - place this BEFORE CORS
-app.use((req, res, next) => {
-  console.log('Incoming request:', {
-    method: req.method,
-    path: req.path,
-    origin: req.headers.origin,
-    headers: req.headers
-  });
-  next();
-});
-
 // Basic CORS middleware
 app.use((req, res, next) => {
-  console.log('Setting CORS headers for request:', {
-    method: req.method,
-    path: req.path,
-    origin: req.headers.origin
-  });
-  
   const allowedOrigins = [
     'https://yagodas.up.railway.app',
     'http://localhost:3000'
@@ -49,16 +33,13 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
   
-  // Handle preflight
   if (req.method === 'OPTIONS') {
-    console.log('Handling OPTIONS request');
     return res.status(200).end();
   }
   
   next();
 });
 
-// Parse JSON bodies
 app.use(express.json());
 
 const io = new Server(httpServer, {
@@ -71,21 +52,18 @@ const io = new Server(httpServer, {
 
 // Routes
 app.get('/health', (req, res) => {
-  console.log('Health check requested');
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api', backgroundRoutes);
 
 // Socket.IO middleware
 io.use(authenticateSocket);
 
 // Socket.IO connection handling
 io.on('connection', async (socket) => {
-  console.log('User connected:', socket.data.userId);
-
-  // Update user status to online
   try {
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOne({ where: { id: socket.data.userId } });
@@ -94,7 +72,6 @@ io.on('connection', async (socket) => {
       user.isOnline = true;
       await userRepository.save(user);
       
-      // Broadcast user online status
       io.emit('user_status', {
         userId: socket.data.userId,
         isOnline: true
@@ -104,7 +81,6 @@ io.on('connection', async (socket) => {
     console.error('Error updating user status:', error);
   }
 
-  // Handle new messages
   socket.on('send_message', async (data) => {
     try {
       const { content } = data;
@@ -113,11 +89,8 @@ io.on('connection', async (socket) => {
       
       const user = await userRepository.findOne({ where: { id: socket.data.userId } });
 
-      if (!user) {
-        return;
-      }
+      if (!user) return;
 
-      // Create and save the new message
       const message = new Message();
       message.content = content;
       message.sender = user;
@@ -125,7 +98,6 @@ io.on('connection', async (socket) => {
       
       const savedMessage = await messageRepository.save(message);
 
-      // Broadcast the message to all clients
       io.emit('new_message', {
         id: savedMessage.id,
         content: savedMessage.content,
@@ -141,22 +113,17 @@ io.on('connection', async (socket) => {
     }
   });
 
-  // Handle typing events
   socket.on('typing', () => {
     socket.broadcast.emit('user_typing', {
       userId: socket.data.userId
     });
   });
 
-  // Handle disconnection
   socket.on('disconnect', async () => {
-    console.log('User disconnected:', socket.data.userId);
-    
     try {
       const userRepository = AppDataSource.getRepository(User);
       await userRepository.update(socket.data.userId, { isOnline: false });
       
-      // Broadcast user offline status
       io.emit('user_status', {
         userId: socket.data.userId,
         isOnline: false
@@ -170,12 +137,9 @@ io.on('connection', async (socket) => {
 // Initialize database connection
 AppDataSource.initialize()
   .then(() => {
-    console.log('Database connection established');
-    
     const PORT = process.env.PORT || 4000;
     httpServer.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      // console.log('CORS enabled for:', 'https://yagodas.up.railway.app');
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((error) => {
