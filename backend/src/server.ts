@@ -19,23 +19,43 @@ const httpServer = createServer(app);
 // Define allowed origins
 const allowedOrigins = [
   process.env.CLIENT_URL || 'http://localhost:3000',
-  'https://yagodas.up.railway.app'
+  'https://yagodas.up.railway.app',  // New domain
+  'https://frontend-production-723b.up.railway.app'  // Keep old domain for safety
 ];
 
+// CORS options with more detailed configuration
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin); // Debug log
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+
 const io = new Server(httpServer, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ['GET', 'POST'],
-    credentials: true
-  }
+  cors: corsOptions
 });
 
 // Middleware
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+app.use(cors(corsOptions));
 app.use(express.json());
+
+// Debug middleware to log requests
+app.use((req, res, next) => {
+  console.log('Request:', {
+    method: req.method,
+    path: req.path,
+    origin: req.headers.origin,
+    headers: req.headers
+  });
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -138,6 +158,7 @@ AppDataSource.initialize()
     const PORT = process.env.PORT || 4000;
     httpServer.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
+      console.log('Allowed origins:', allowedOrigins);
     });
   })
   .catch((error) => {
