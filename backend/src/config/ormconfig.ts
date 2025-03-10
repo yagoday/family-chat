@@ -8,13 +8,21 @@ import { AddIsAdminColumn1741588358569 } from "../migrations/1741588358569-AddIs
 
 dotenv.config();
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: isProduction,
+  extra: {
+    ssl: isProduction ? {
+      rejectUnauthorized: false
+    } : false
+  },
   synchronize: false,
   logging: true,
   entities: [User, Message],
   migrations: [SeedUsers1709999999999, AddIsAdminColumn1741588358569],
   subscribers: [],
+  migrationsRun: true // This will ensure migrations run on startup
 }); 
