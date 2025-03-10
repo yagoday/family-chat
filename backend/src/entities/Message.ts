@@ -10,7 +10,7 @@ export class Message {
   content: string;
 
   @Column({ nullable: true })
-  imageUrl?: string;
+  image_url: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'senderId' })
