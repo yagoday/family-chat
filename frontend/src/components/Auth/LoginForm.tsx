@@ -48,7 +48,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         }}
       >
         <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#4a90e2' }}>
-          צ'אט משפחתי 👨‍👩‍👧‍👦
+        היגודאים
         </Typography>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2, width: '100%' }}>
           <TextField
