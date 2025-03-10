@@ -17,6 +17,7 @@ export class MessageController {
           'message.content',
           'message.image_url',
           'message.createdAt',
+          'message.user_id',
           'sender.id',
           'sender.username',
           'sender.nickname'

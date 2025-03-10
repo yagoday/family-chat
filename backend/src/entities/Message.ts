@@ -13,10 +13,10 @@ export class Message {
   image_url: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'senderId' })
+  @JoinColumn({ name: 'user_id' })
   sender: User;
 
-  @Column()
+  @Column({ name: 'user_id' })
   senderId: string;
 
   @CreateDateColumn()
