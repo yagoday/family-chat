@@ -1,0 +1,135 @@
+---
+description: Apply these rules when creating the project
+globs:
+alwaysApply: true
+---
+## Project Overview
+
+*   **Type:** cursor_project_rules
+*   **Description:** Family Chat Application - Design Document A real-time family chat application enabling pre-registered family members to communicate securely in a shared chat room. Users authenticate with a username and password and can exchange text messages, emojis, and JPEG images (with automatic resizing if necessary). Designed to be kid-friendly, the application incorporates vibrant colors and engaging emojis for an intuitive user experience across desktop, mobile, and tablet devices.
+*   **Primary Goal:** To provide a seamless, secure, and engaging real-time communication platform that emphasizes easy authentication (via JWT) and instant messaging using Socket.io, along with robust image support through Cloudinary integration.
+
+## Project Structure
+
+### Framework-Specific Routing
+
+*   **Directory Rules:**
+
+    *   **React Router 6 (React@18):** Use a nested route structure located in `src/routes/` employing `createBrowserRouter` for dynamic client-side routing.
+    *   Example: `src/routes/chatRoute.tsx` defines protected chat routes and integrates with authentication flows.
+
+### Core Directories
+
+*   **Versioned Structure:**
+
+    *   `src/`**:** Contains all front-end components, views, and assets. Implements React components and leverages TypeScript for static typing.
+    *   `server/`**:** Houses backend logic built with Node.js and Express. Contains subdirectories such as `server/api` for API endpoints, `server/controllers` for business logic, and `server/middleware` for authentication and validation.
+    *   Example 1: `server/api/auth.ts` provides JWT-based authentication endpoints.
+    *   Example 2: `src/components/ChatApp.tsx` implements the main chat interface.
+
+### Key Files
+
+*   **Stack-Versioned Patterns:**
+
+    *   `server/app.ts`**:** Entry point for the Express application where middleware, routes, and Socket.io integration are established.
+    *   `src/App.tsx`**:** Main React component integrating the router and global state management.
+    *   Example: `server/api/messages.ts` handles RESTful messaging endpoints (including image upload handling through Cloudinary).
+
+## Tech Stack Rules
+
+*   **Version Enforcement:**
+
+    *   **react@18:** Ensure modern React features and hooks are utilized. Maintain component modularity and state management best practices.
+    *   **<typescript@4.x>:** Enforce strict type checking and interfaces for all modules.
+    *   **<express@4.x>:** Standard middleware practices for route handling, error management, and security validations.
+    *   **<socket.io@4.x>:** Utilize proper namespaces, authentication middleware, and event validation.
+    *   **postgresql:** Follow best practices for connection pooling, parameterized queries (using TypeORM), and migrations.
+    *   **cloudinary:** Integrate with Cloudinary SDK ensuring image uploads are validated (file type and size) and automatically resized if too large.
+    *   **jwt:** Implement secure token issuance with defined expiration times; tokens are used for both RESTful routes and WebSocket communications.
+    *   **bcrypt:** Use salt rounds of 10 for secure password hashing.
+    *   **axios:** Implement interceptors for request authentication and error handling.
+    *   **material-ui / tailwind CSS:** Enforce responsive design principles and component reusability.
+    *   **emoji-mart:** Use efficient rendering for emoji selection and integration within text inputs.
+
+## PRD Compliance
+
+*   **Non-Negotiable:**
+
+    *   "Login using pre-registered username and password." - Ensure that authentication via a CLI-based pre-registration script and JWT token validation is strictly enforced.
+    *   All core features such as real-time messaging, text and image support, and responsive UI are to be implemented as outlined in the PRD.
+
+## App Flow Integration
+
+*   **Stack-Aligned Flow:**
+
+    *   Example: "React Router Auth Flow → `src/components/LoginForm.tsx` utilizes secure JWT validation and redirects upon successful authentication."
+    *   The chat interface (`src/components/ChatApp.tsx`) leverages Socket.io for establishing real-time communication using the authenticated token.
+
+## Best Practices
+
+*   **React (React@18):**
+
+    *   Use functional components with hooks to manage state and side-effects.
+    *   Ensure separation of concerns by splitting UI components and business logic.
+    *   Employ code-splitting and lazy loading for improved performance.
+
+*   **TypeScript (<typescript@4.x>):**
+
+    *   Enforce strict typing and utilize interfaces for component properties and API responses.
+    *   Leverage TypeScript’s advanced type system to avoid runtime errors.
+    *   Maintain consistency in coding standards across both front-end and back-end codebases.
+
+*   **Node.js & Express (<express@4.x>):**
+
+    *   Structure the application with clear separation between routing, controllers, and middleware.
+    *   Implement robust error handling and logging for API endpoints.
+    *   Secure all endpoints using proper authentication and input validation.
+
+*   **Socket.io (<socket.io@4.x>):**
+
+    *   Validate tokens during the socket handshake process to secure real-time communications.
+    *   Organize events clearly and ensure that event names do not conflict.
+    *   Use namespaces or rooms to manage different chat channels if necessary.
+
+*   **PostgreSQL:**
+
+    *   Use parameterized queries and ORM practices (e.g., with TypeORM) to avoid SQL injection.
+    *   Implement database migration strategies for evolving schemas.
+    *   Optimize query performance and maintain proper indexing.
+
+*   **Cloudinary:**
+
+    *   Validate image file types (only JPEG allowed) and sizes before upload.
+    *   Automatically handle image resizing/shrinking to maintain performance.
+    *   Secure API keys and use environment variables for configuration.
+
+*   **JWT & Bcrypt:**
+
+    *   Set secure expiration times for JWT tokens to mitigate security risks.
+    *   Consistently apply bcrypt for hashing with sufficient salt rounds.
+    *   Ensure secure handling and storage of sensitive user credentials.
+
+*   **Axios:**
+
+    *   Use interceptors to attach JWT tokens to API requests and handle global error responses.
+    *   Abstract API calls into a separate service layer for cleaner components.
+
+*   **Material-UI / Tailwind CSS:**
+
+    *   Follow component-based design principles to ensure reusability and maintainability.
+    *   Maintain responsiveness with mobile-first design techniques and media queries.
+    *   Leverage theme customizations to keep UI consistent with the kid-friendly, vibrant design.
+
+*   **Emoji-mart:**
+
+    *   Integrate efficient emoji rendering in text inputs and ensure smooth performance.
+    *   Optimize loading times for emoji pickers by lazy-loading their assets.
+    *   Ensure accessibility and keyboard navigation support in emoji selection components.
+
+## Rules
+
+*   Derive folder/file patterns **directly** from tech stack versions as documented in the tech stack guidelines above.
+*   If using React Router 6, enforce a `src/routes/` directory for all client-side routes. Do not mix with other routing patterns (e.g., Next.js App Router or Pages Router).
+*   All server files related to authentication, messaging, and image handling must adhere to secure coding practices and separate concerns clearly within the `server/` directory.
+*   Ensure that all middleware (authentication, error handling, input validation) is consistently applied across both API endpoints and real-time socket events.
+*   Maintain a clear and organized project structure to facilitate easy scalability and maintenance, mirroring the guidelines provided in this document.
