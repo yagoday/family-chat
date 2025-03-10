@@ -29,7 +29,22 @@ app.use((req, res, next) => {
 
 // Basic CORS middleware
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://yagodas.up.railway.app');
+  console.log('Setting CORS headers for request:', {
+    method: req.method,
+    path: req.path,
+    origin: req.headers.origin
+  });
+  
+  const allowedOrigins = [
+    'https://yagodas.up.railway.app',
+    'http://localhost:3000'
+  ];
+  
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -48,7 +63,7 @@ app.use(express.json());
 
 const io = new Server(httpServer, {
   cors: {
-    origin: 'https://yagodas.up.railway.app',
+    origin: ['https://yagodas.up.railway.app', 'http://localhost:3000'],
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -160,7 +175,7 @@ AppDataSource.initialize()
     const PORT = process.env.PORT || 4000;
     httpServer.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
-      console.log('CORS enabled for:', 'https://yagodas.up.railway.app');
+      // console.log('CORS enabled for:', 'https://yagodas.up.railway.app');
     });
   })
   .catch((error) => {

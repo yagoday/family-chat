@@ -16,17 +16,17 @@ export class MessageController {
           'message.id',
           'message.content',
           'message.image_url',
-          'message.created_at',
-          'message.user_id',
+          'message.createdAt',
+          'message.senderId',
           'sender.id',
           'sender.username',
           'sender.nickname'
         ])
-        .orderBy('message.created_at', 'DESC')
+        .orderBy('message.createdAt', 'DESC')
         .take(Number(limit));
 
       if (before) {
-        queryBuilder.where('message.created_at < :before', { before });
+        queryBuilder.where('message.createdAt < :before', { before });
       }
 
       const messages = await queryBuilder.getMany();
