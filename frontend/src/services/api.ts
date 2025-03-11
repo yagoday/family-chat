@@ -10,12 +10,8 @@ const api = axios.create({
   withCredentials: true, // Enable sending cookies
 });
 
-// Add request interceptor to include auth token
+// Add request interceptor for logging
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
   // Log the request configuration
   console.log('Request config:', {
     url: config.url,
@@ -44,7 +40,6 @@ api.interceptors.response.use(
 );
 
 export interface LoginResponse {
-  token: string;
   user: {
     id: string;
     username: string;
@@ -62,8 +57,7 @@ export const auth = {
       });
       console.log('Login response:', response.data);
       
-      // Store complete user data
-      localStorage.setItem('token', response.data.token);
+      // Store user data in localStorage
       localStorage.setItem('user', JSON.stringify(response.data.user));
       return response.data;
     } catch (error) {
@@ -78,8 +72,7 @@ export const auth = {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Always clear local storage, even if the server request fails
-      localStorage.removeItem('token');
+      // Clear user data from localStorage
       localStorage.removeItem('user');
       // Force reload the page to clear any in-memory state
       window.location.href = '/login';
@@ -92,9 +85,9 @@ export const auth = {
   },
 
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('token');
+    // Check if user data exists in localStorage
     const user = localStorage.getItem('user');
-    return !!(token && user);
+    return !!user;
   },
 };
 

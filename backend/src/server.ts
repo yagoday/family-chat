@@ -3,6 +3,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { config } from 'dotenv';
 import { AppDataSource } from './config/ormconfig';
 import authRoutes from './routes/auth.routes';
@@ -17,36 +18,24 @@ config();
 const app = express();
 const httpServer = createServer(app);
 
-// Basic CORS middleware
-app.use((req, res, next) => {
-  const allowedOrigins = [
-    'https://yagodas.up.railway.app',
-    'http://localhost:3000'
-  ];
-  
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  next();
-});
+// Configure CORS with credentials
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Add cookie parser middleware
+app.use(cookieParser());
 
 app.use(express.json());
 
 const io = new Server(httpServer, {
   cors: {
-    origin: ['https://yagodas.up.railway.app', 'http://localhost:3000'],
-    methods: ['GET', 'POST'],
-    credentials: true
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST']
   }
 });
 

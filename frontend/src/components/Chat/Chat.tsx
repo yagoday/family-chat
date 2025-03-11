@@ -19,6 +19,13 @@ interface Message {
   imageUrl?: string;
 }
 
+interface User {
+  id: string;
+  username: string;
+  nickname: string;
+  avatar: string;
+}
+
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:4000';
 const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000/api';
 
@@ -26,24 +33,26 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  // Parse user data and provide default values
-  const userStr = localStorage.getItem('user');
-  const user = userStr ? JSON.parse(userStr) : {
-    id: '',
-    username: '',
-    nickname: '',
-    avatar: '/images/default-avatar.jpg',
-    isAdmin: false
-  };
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const userData = JSON.parse(userStr);
+      setCurrentUser({
+        id: userData.id,
+        username: userData.username,
+        nickname: userData.nickname,
+        avatar: userData.avatar || '/images/default-avatar.jpg'
+      });
+    }
+  }, []);
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         const response = await fetch(`${API_URL}/messages`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
+          credentials: 'include',
         });
         if (!response.ok) {
           throw new Error('Failed to fetch messages');
@@ -60,11 +69,11 @@ const Chat: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!currentUser) return;
 
     const newSocket = io(SOCKET_URL, {
-      auth: { token },
+      auth: { userId: currentUser.id },
+      withCredentials: true,
     });
 
     newSocket.on('connect', () => {
@@ -88,7 +97,7 @@ const Chat: React.FC = () => {
     return () => {
       newSocket.close();
     };
-  }, []);
+  }, [currentUser]);
 
   const handleSendMessage = (content: string) => {
     if (socket) {
@@ -121,12 +130,12 @@ const Chat: React.FC = () => {
         backgroundColor: 'rgba(255, 255, 255, 0.05)'
       }}>
         <Header 
-          displayName={user?.nickname || user?.username || ''} 
+          displayName={currentUser?.nickname || currentUser?.username || ''} 
           isOnline={isConnected}
-          avatar={user?.avatar || '/images/default-avatar.jpg'}
+          avatar={currentUser?.avatar || '/images/default-avatar.jpg'}
         />
         <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-          <MessageList messages={messages} currentUserId={user?.id || ''} />
+          <MessageList messages={messages} currentUserId={currentUser?.id || ''} />
         </Box>
         <InputArea onSendMessage={handleSendMessage} onTyping={handleTyping} />
       </Box>

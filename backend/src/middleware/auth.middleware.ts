@@ -3,13 +3,22 @@ import { ExtendedError } from 'socket.io/dist/namespace';
 import jwt from 'jsonwebtoken';
 import { AppDataSource } from '../config/ormconfig';
 import { User } from '../entities/User';
+import { parse } from 'cookie';
 
 export const authenticateSocket = async (
   socket: Socket,
   next: (err?: ExtendedError | undefined) => void
 ) => {
   try {
-    const token = socket.handshake.auth.token;
+    // Get cookies from handshake headers
+    const cookieHeader = socket.handshake.headers.cookie;
+    if (!cookieHeader) {
+      return next(new Error('Authentication cookie is required'));
+    }
+
+    const cookies = parse(cookieHeader);
+    const token = cookies.token;
+
     if (!token) {
       return next(new Error('Authentication token is required'));
     }

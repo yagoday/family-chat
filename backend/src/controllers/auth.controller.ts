@@ -40,8 +40,15 @@ export class AuthController {
 
       const token = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '24h' });
 
+      // Set HTTP-only cookie with the JWT token
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      });
+
       res.json({
-        token,
         user: {
           id: user.id,
           username: user.username,
@@ -71,6 +78,13 @@ export class AuthController {
       // Update user's online status
       user.isOnline = false;
       await userRepository.save(user);
+
+      // Clear the auth cookie
+      res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
 
       res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
