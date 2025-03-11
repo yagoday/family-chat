@@ -19,7 +19,6 @@ router.get('/backgrounds', async (req, res) => {
   try {
     const result = await cloudinary.search
       .expression('folder:yagodas/*')
-      .max_results(500)
       .execute();
     
     const images = result.resources.map((resource: any) => ({

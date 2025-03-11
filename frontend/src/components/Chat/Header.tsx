@@ -1,7 +1,8 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Avatar } from '@mui/material';
+import React, { useState } from 'react';
+import { AppBar, Toolbar, Typography, Menu, MenuItem, Box, Avatar } from '@mui/material';
 import { auth } from '../../services/api';
 import LogoutIcon from '@mui/icons-material/Logout';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 interface HeaderProps {
   displayName: string;
@@ -10,6 +11,16 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ displayName, isOnline, avatar }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   const handleLogout = async () => {
     try {
       await auth.logout();
@@ -21,32 +32,83 @@ const Header: React.FC<HeaderProps> = ({ displayName, isOnline, avatar }) => {
 
   return (
     <AppBar position="static" sx={{ backgroundColor: '#4a90e2' }}>
-      <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            marginRight: 2,
+            flexGrow: 0
+          }}
+        >
           היגודאים
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 2,
+            marginLeft: 2,
+            cursor: 'pointer',
+            '&:hover': {
+              '& .MuiSvgIcon-root': {
+                transform: 'translateY(2px)'
+              }
+            }
+          }}
+          onClick={handleClick}
+        >
+          <Typography variant="body1">{displayName}</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Avatar
               src={avatar}
               alt={displayName}
               sx={{
                 width: 40,
                 height: 40,
-                marginRight: 1,
                 border: isOnline ? '2px solid #4caf50' : '2px solid #bdbdbd'
               }}
             />
-            <Typography variant="body1">{displayName}</Typography>
+            <KeyboardArrowDownIcon 
+              sx={{ 
+                fontSize: 20, 
+                marginRight: -1,
+                transition: 'transform 0.2s',
+                color: 'rgba(255, 255, 255, 0.8)'
+              }} 
+            />
           </Box>
-          <Button
-            color="inherit"
-            onClick={handleLogout}
-            startIcon={<LogoutIcon sx={{ ml: 1 }} />}
-          >
-            התנתק
-          </Button>
         </Box>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          sx={{
+            '& .MuiPaper-root': {
+              minWidth: '120px',
+              marginTop: 1,
+              boxShadow: '0px 2px 8px rgba(0,0,0,0.15)'
+            }
+          }}
+        >
+          <MenuItem 
+            onClick={() => { handleClose(); handleLogout(); }}
+            sx={{ 
+              fontSize: '0.9rem',
+              py: 1
+            }}
+          >
+            <LogoutIcon sx={{ ml: 1, fontSize: '1.1rem' }} />
+            התנתק
+          </MenuItem>
+        </Menu>
       </Toolbar>
     </AppBar>
   );

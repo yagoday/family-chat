@@ -8,16 +8,6 @@ interface BackgroundImage {
 
 const API_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000/api';
 
-// Fisher-Yates shuffle algorithm
-const shuffleArray = <T,>(array: T[]): T[] => {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
-
 const BackgroundSlider: React.FC = () => {
   const [images, setImages] = useState<BackgroundImage[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -25,9 +15,8 @@ const BackgroundSlider: React.FC = () => {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const response = await axios.get<BackgroundImage[]>(`${API_URL}/backgrounds`);
-        const shuffledImages = shuffleArray(response.data);
-        setImages(shuffledImages);
+        const response = await axios.get(`${API_URL}/backgrounds`);
+        setImages(response.data);
       } catch (error) {
         console.error('Error fetching background images:', error);
       }
