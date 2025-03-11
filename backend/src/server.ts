@@ -20,7 +20,19 @@ const httpServer = createServer(app);
 
 // Configure CORS with credentials
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'https://yagodas.up.railway.app',
+      'https://yagodas.up.railway.app/',
+      'http://localhost:3000'
+    ];
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -33,7 +45,19 @@ app.use(express.json());
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'https://yagodas.up.railway.app',
+        'https://yagodas.up.railway.app/',
+        'http://localhost:3000'
+      ];
+      
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST']
   }
