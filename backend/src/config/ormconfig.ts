@@ -12,9 +12,6 @@ dotenv.config();
 const isProduction = process.env.NODE_ENV === 'production';
 const isDevelopment = !isProduction;
 
-// Log the database URL being used
-console.log('Database URL:', process.env.DATABASE_URL);
-console.log('NODE_ENV:', process.env.NODE_ENV);
 
 export const AppDataSource = new DataSource({
   type: 'postgres',

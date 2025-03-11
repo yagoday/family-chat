@@ -31,26 +31,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages = [], currentUserId 
     scrollToBottom();
   }, [messages]);
 
-  // Ensure messages is an array
   const messageArray = Array.isArray(messages) ? messages : [];
-
-  if (messageArray.length === 0) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          color: '#666',
-        }}
-      >
-        <Typography variant="body1">
-          אין הודעות עדיין. התחל את השיחה! 💬
-        </Typography>
-      </Box>
-    );
-  }
 
   return (
     <Box
