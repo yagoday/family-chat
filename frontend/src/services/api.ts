@@ -10,34 +10,27 @@ const api = axios.create({
   withCredentials: true, // Enable sending cookies
 });
 
-// Add request interceptor for logging
-api.interceptors.request.use((config) => {
-  // Log the request configuration
-  console.log('Request config:', {
-    url: config.url,
-    method: config.method,
-    headers: config.headers,
-    baseURL: config.baseURL,
-    withCredentials: config.withCredentials
-  });
-  return config;
-});
+// // Add request interceptor for logging
+// api.interceptors.request.use((config) => {
+//   // Log the request configuration
+//   console.log('Request config:', {
+//     url: config.url,
+//     method: config.method,
+//     headers: config.headers,
+//     baseURL: config.baseURL,
+//     withCredentials: config.withCredentials
+//   });
+//   return config;
+// });
 
-// Add response interceptor to handle errors
-api.interceptors.response.use(
-  (response) => {
-    console.log('Response:', response);
-    return response;
-  },
-  (error) => {
-    console.error('API Error:', {
-      message: error.message,
-      config: error.config,
-      response: error.response
-    });
-    return Promise.reject(error);
-  }
-);
+// // Add response interceptor to handle errors
+// api.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     console.error('API Error:', error.message);
+//     return Promise.reject(error);
+//   }
+// );
 
 export interface LoginResponse {
   user: {
@@ -50,12 +43,10 @@ export interface LoginResponse {
 export const auth = {
   async login(username: string, password: string): Promise<LoginResponse> {
     try {
-      console.log('Attempting login with:', { username, API_BASE_URL });
       const response = await api.post<LoginResponse>('/auth/login', {
         username,
         password,
       });
-      console.log('Login response:', response.data);
       
       // Store user data in localStorage
       localStorage.setItem('user', JSON.stringify(response.data.user));

@@ -1,8 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppDataSource } from '../config/ormconfig';
-import { User } from '../entities/User';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import { AuthService } from '../services/auth.service';
 import { AuthRequest } from '../middleware/auth';
 
 export class AuthController {
@@ -15,48 +12,27 @@ export class AuthController {
         return;
       }
 
-      const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.findOne({ where: { username } });
-
+      const user = await AuthService.validateCredentials(username, password);
       if (!user) {
         res.status(401).json({ message: 'Invalid credentials' });
         return;
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        res.status(401).json({ message: 'Invalid credentials' });
-        return;
-      }
-
-      const jwtSecret = process.env.JWT_SECRET;
-      if (!jwtSecret) {
-        throw new Error('JWT_SECRET is not defined in environment variables');
-      }
-
       // Update user's online status
-      user.isOnline = true;
-      await userRepository.save(user);
+      await AuthService.updateUserOnlineStatus(user, true);
 
-      const token = jwt.sign({ id: user.id }, jwtSecret, { expiresIn: '24h' });
+      const token = AuthService.generateToken(user.id);
 
       // Set HTTP-only cookie with the JWT token
       res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
       });
 
       res.json({
-        user: {
-          id: user.id,
-          username: user.username,
-          nickname: user.nickname,
-          avatar: `/images/${user.username}.jpeg`,
-          isOnline: user.isOnline,
-          isAdmin: user.isAdmin
-        }
+        user: AuthService.getUserProfile(user)
       });
     } catch (error) {
       console.error('Login error:', error);
@@ -73,11 +49,8 @@ export class AuthController {
         return;
       }
 
-      const userRepository = AppDataSource.getRepository(User);
-      
       // Update user's online status
-      user.isOnline = false;
-      await userRepository.save(user);
+      await AuthService.updateUserOnlineStatus(user, false);
 
       // Clear the auth cookie
       res.clearCookie('token', {
@@ -102,13 +75,7 @@ export class AuthController {
         return;
       }
 
-      res.json({
-        id: user.id,
-        username: user.username,
-        nickname: user.nickname,
-        avatar: `/images/${user.username}.jpeg`,
-        isOnline: user.isOnline
-      });
+      res.json(AuthService.getUserProfile(user));
     } catch (error) {
       console.error('Get profile error:', error);
       res.status(500).json({ message: 'Internal server error' });
