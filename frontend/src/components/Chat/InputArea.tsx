@@ -6,6 +6,9 @@ import {
   Paper,
   Popper,
   ClickAwayListener,
+  useMediaQuery,
+  useTheme,
+  Modal,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
@@ -21,6 +24,8 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, onTyping }) => {
   const [message, setMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleSend = () => {
     const trimmedMessage = message.trim();
@@ -87,22 +92,63 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, onTyping }) => {
         </IconButton>
       </Box>
 
-      <Popper
-        open={showEmojiPicker}
-        anchorEl={emojiButtonRef.current}
-        placement="top-end"
-        style={{ zIndex: 1000 }}
-      >
-        <ClickAwayListener onClickAway={() => setShowEmojiPicker(false)}>
-          <Paper elevation={3}>
-            <Picker
-              data={data}
-              onEmojiSelect={handleEmojiSelect}
-              theme="light"
-            />
+      {isMobile ? (
+        <Modal
+          open={showEmojiPicker}
+          onClose={() => setShowEmojiPicker(false)}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Paper
+            elevation={3}
+            sx={{
+              width: '100%',
+              maxWidth: '100%',
+              maxHeight: '100%',
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              bgcolor: 'background.paper',
+              borderRadius: '16px 16px 0 0',
+            }}
+          >
+            <Box sx={{ 
+              height: '50vh',
+              '& .emoji-mart': {
+                width: '100% !important',
+                height: '100% !important'
+              }
+            }}>
+              <Picker
+                data={data}
+                onEmojiSelect={handleEmojiSelect}
+                theme="light"
+              />
+            </Box>
           </Paper>
-        </ClickAwayListener>
-      </Popper>
+        </Modal>
+      ) : (
+        <Popper
+          open={showEmojiPicker}
+          anchorEl={emojiButtonRef.current}
+          placement="top-end"
+          style={{ zIndex: 1000 }}
+        >
+          <ClickAwayListener onClickAway={() => setShowEmojiPicker(false)}>
+            <Paper elevation={3}>
+              <Picker
+                data={data}
+                onEmojiSelect={handleEmojiSelect}
+                theme="light"
+              />
+            </Paper>
+          </ClickAwayListener>
+        </Popper>
+      )}
     </Box>
   );
 };

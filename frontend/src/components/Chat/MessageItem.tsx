@@ -62,7 +62,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
             position: 'relative',
             width: 32,
             height: 32,
-            mb: 1
+            mb: 2.5
           }}
         >
           <Avatar
@@ -87,7 +87,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
           />
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography
+          {/* <Typography
             variant="caption"
             sx={{
               mb: 0.5,
@@ -96,11 +96,11 @@ const MessageItem: React.FC<MessageItemProps> = ({
             }}
           >
             {sender}
-          </Typography>
+          </Typography> */}
           <Paper
             elevation={1}
             sx={{
-              p: 1.5,
+              p: 0.5,
               backgroundColor: isCurrentUser ? '#4a90e2' : '#f5f5f5',
               color: isCurrentUser ? 'white' : 'inherit',
               borderRadius: 2,

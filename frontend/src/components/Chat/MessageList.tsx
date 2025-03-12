@@ -39,7 +39,6 @@ const MessageList: React.FC<MessageListProps> = ({ messages = [], currentUserId 
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
-        p: 2,
         height: '100%',
         overflowY: 'auto',
       }}
