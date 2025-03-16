@@ -6,6 +6,7 @@ import { Message } from "../entities/Message";
 import { SeedUsers1709999999999 } from "../migrations/1709999999999-SeedUsers";
 import { AddIsAdminColumn1741588358569 } from "../migrations/1741588358569-AddIsAdminColumn";
 import { CreateMessages1741593647638 } from "../migrations/1741593647638-CreateMessages";
+import { DeleteAllMessages1742141237000 } from "../migrations/1742141237000-DeleteAllMessages";
 
 dotenv.config();
 
@@ -25,7 +26,8 @@ export const AppDataSource = new DataSource({
   migrations: [
     SeedUsers1709999999999, 
     AddIsAdminColumn1741588358569,
-    CreateMessages1741593647638
+    CreateMessages1741593647638,
+    DeleteAllMessages1742141237000
   ],
   subscribers: [],
   migrationsRun: true // This will ensure migrations run on startup
